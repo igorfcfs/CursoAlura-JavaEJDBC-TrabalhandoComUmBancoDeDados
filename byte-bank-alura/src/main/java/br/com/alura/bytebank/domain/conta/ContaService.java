@@ -5,12 +5,9 @@ import br.com.alura.bytebank.domain.RegraDeNegocioException;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.util.HashSet;
 import java.util.Set;
 
 public class ContaService {
-
-    private Set<Conta> contas = new HashSet<>();
 
     private ConnectionFactory connection;
 
@@ -44,6 +41,10 @@ public class ContaService {
             throw new RegraDeNegocioException("Saldo insuficiente!");
         }
 
+        if (!conta.getEstaAtiva()){
+            throw new RegraDeNegocioException("Conta não está ativa!");
+        }
+
         BigDecimal novoValor = conta.getSaldo().subtract(valor);
         Connection conn = connection.recuperarConexao();
         new ContaDAO(conn).alterar(conta.getNumero(), novoValor);
@@ -53,6 +54,9 @@ public class ContaService {
         var conta = buscarContaPorNumero(numeroDaConta);
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RegraDeNegocioException("Valor do deposito deve ser superior a zero!");
+        }
+        if (!conta.getEstaAtiva()){
+            throw new RegraDeNegocioException("Conta não está ativa!");
         }
         BigDecimal novoValor = conta.getSaldo().add(valor);
         Connection conn = connection.recuperarConexao();
@@ -64,13 +68,24 @@ public class ContaService {
         this.realizarDeposito(numeroDaContaDestino, valor);
     }
 
+    public void encerrarLogico(Integer numeroDaConta){
+        var conta = buscarContaPorNumero(numeroDaConta);
+        if (conta.possuiSaldo()) {
+            throw new RegraDeNegocioException("Conta não pode ser encerrada pois ainda possui saldo!");
+        }
+
+        Connection conn = connection.recuperarConexao();
+        new ContaDAO(conn).alterarLogico(numeroDaConta);
+    }
+
     public void encerrar(Integer numeroDaConta) {
         var conta = buscarContaPorNumero(numeroDaConta);
         if (conta.possuiSaldo()) {
             throw new RegraDeNegocioException("Conta não pode ser encerrada pois ainda possui saldo!");
         }
 
-        contas.remove(conta);
+        Connection conn = connection.recuperarConexao();
+        new ContaDAO(conn).deletar(numeroDaConta);
     }
 
     private Conta buscarContaPorNumero(Integer numero) {
