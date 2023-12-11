@@ -1,0 +1,20 @@
+// Antes de tudo, ative o MySQL80 em serviços no windows e crie o banco de dados substituindo os dados na classe ConnectionFactory
+
+// Tabela conta
+USE byte_bank_alura;
+CREATE TABLE `conta` (
+  `numero` int NOT NULL,
+  `saldo` decimal(10,0) DEFAULT NULL,
+  `cliente_nome` varchar(50) DEFAULT NULL,
+  `cliente_cpf` varchar(11) DEFAULT NULL,
+  `cliente_email` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`numero`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+// Criar coluna esta_ativa
+SELECT * FROM byte_bank_alura.conta;
+USE byte_bank_alura;
+ALTER TABLE conta ADD COLUMN esta_ativa BOOLEAN DEFAULT TRUE;
+
+// Selecionar linhas da tabela
+SELECT * FROM byte_bank_alura.conta;
