@@ -50,7 +50,7 @@ public class ContaDAO {
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet resultSet = ps.executeQuery();
+            ResultSet resultSet = ps.executeQuery(); // retorna um result set, qnd as queries tem um resultado, como por exemplo neste caso q ele retorna as contas do banco
             while (resultSet.next()){
                 Integer numero = resultSet.getInt(1);
                 BigDecimal saldo = resultSet.getBigDecimal(2);
@@ -74,8 +74,8 @@ public class ContaDAO {
     }
 
     public Conta listarPorNumero(Integer numero) {
-        String sql = "SELECT * FROM conta WHERE numero = " + numero + " and esta_ativa = true";
-
+//        String sql = "SELECT * FROM conta WHERE numero = " + numero + " and esta_ativa = true";
+        String sql = "SELECT * FROM conta WHERE numero = ?";
         PreparedStatement ps;
         ResultSet resultSet;
         Conta conta = null;
@@ -104,5 +104,23 @@ public class ContaDAO {
             throw new RuntimeException(e);
         }
         return conta;
+    }
+
+    public void alterar(Integer numero, BigDecimal valor){
+        PreparedStatement ps;
+        String sql = "UPDATE conta SET saldo = ? WHERE numero = ?";
+
+        try {
+            ps = conn.prepareStatement(sql);
+
+            ps.setBigDecimal(1, valor);
+            ps.setInt(2, numero);
+
+            ps.execute(); //retorna um booleano, se a operacao deu certo ou nao
+            ps.close();
+            conn.close();
+        } catch (SQLException e){
+            System.out.println(e);
+        }
     }
 }
